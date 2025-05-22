@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Meus Shorts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      font-family: sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    video {
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+      max-height: 80vh;
+      background: black;
+      border-radius: 10px;
+    }
+
+    .controles {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: white;
+      color: black;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #ccc;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Meu Reels Custom</h1>
+
+  <video id="video" autoplay muted playsinline></video>
+
+  <div class="controles">
+    <button onclick="anterior()">◀ Anterior</button>
+    <button onclick="play()">▶ Play</button>
+    <button onclick="pause()">⏸ Pause</button>
+    <button onclick="proximo()">Próximo ▶</button>
+  </div>
+
+  <script>
+    const videoElement = document.getElementById('video');
+
+    const videos = [
+      { src: '/2025_01_30-mentoria.mp4', inicio: 5, fim: 15 },
+      { src: '/2025_01_30-mentoria.mp4', inicio: 30, fim: 35 },
+      { src: '/2025_01_30-mentoria.mp4', inicio: 60, fim: 70 }
+    ];
+
+    let atual = 0;
+
+    function tocarVideo(index) {
+      const video = videos[index];
+      if (!video) return;
+
+      videoElement.src = `${video.src}#t=${video.inicio},${video.fim}`;
+      videoElement.currentTime = video.inicio;
+      videoElement.play();
+
+      videoElement.onloadedmetadata = () => {
+        videoElement.currentTime = video.inicio;
+      };
+
+      videoElement.ontimeupdate = () => {
+        if (videoElement.currentTime >= video.fim) {
+          videoElement.currentTime = video.inicio;
+        }
+      };
+    }
+
+    function proximo() {
+      atual = (atual + 1) % videos.length;
+      tocarVideo(atual);
+    }
+
+    function anterior() {
+      atual = (atual - 1 + videos.length) % videos.length;
+      tocarVideo(atual);
+    }
+
+    function play() {
+      videoElement.play();
+    }
+
+    function pause() {
+      videoElement.pause();
+    }
+
+    // Início automático
+    tocarVideo(atual);
+  </script>
+</body>
+</html>
