@@ -1,0 +1,33 @@
+<video id="video" controls></video>
+
+<div class="controles">
+  <br-button id="btn-anterior" label="◀ Anterior"></br-button>
+  <br-button id="btn-play" label="▶ Play"></br-button>
+  <br-button id="btn-pause" label="⏸ Pause"></br-button>
+  <br-button id="btn-proximo" label="▶▶ Próximo"></br-button>
+</div>
+
+<style>
+  :host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  video {
+    width: 90vw;
+    max-width: 400px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .controles {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+</style>
