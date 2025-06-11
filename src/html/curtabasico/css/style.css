@@ -801,43 +801,16 @@
   outline-width: var(--focus-width);
 }
 
-/* Centralizar o conteúdo principal */
-br-video {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 100px); /* se tiver rodapé fixo */
-  gap: 1.5rem;
-  padding: 1rem;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Raleway", sans-serif;
 }
 
 .video-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.video-container video {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-}
-
-.botoes {
-  display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Rodapé fixo no fim da tela */
-br-rodape {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 999;
+  align-items: center;
+  min-height: calc(100vh - 120px); /* Ajuste para cabeçalho/rodapé */
+  padding: 20px;
 }
