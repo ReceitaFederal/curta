@@ -803,14 +803,113 @@
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: "Raleway", sans-serif;
+  background: white;
+  font-family: Arial, sans-serif;
 }
 
-.video-container {
+main {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 120px); /* Ajuste para cabeçalho/rodapé */
-  padding: 20px;
+  min-height: calc(100vh - 120px);
+  position: relative;
+}
+
+.curta-container {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 9/13;
+  background-color: black;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+}
+
+/* === Botões de Navegação (Desktop) === */
+.nav-button {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.prev-button {
+  left: calc(50% - 260px);
+}
+
+.next-button {
+  right: calc(50% - 260px);
+}
+
+/* === Esconde botões no mobile === */
+@media (max-width: 600px) {
+  .nav-button {
+    display: none;
+  }
+}
+
+/* === Toast (feedback) === */
+#toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+
+/* === Toast ativo === */
+#toast.active {
+  opacity: 1;
+}
+
+/* === Volume === */
+.volume-control {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.volume-control input[type="range"] {
+  width: 0;
+  height: 4px;
+  opacity: 0;
+  transition: width 0.3s, opacity 0.3s;
+}
+
+.volume-control:hover input[type="range"] {
+  width: 80px;
+  opacity: 1;
+}
+
+.volume-control button {
+  background-color: rgba(0, 0, 0, 0.4);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
 }

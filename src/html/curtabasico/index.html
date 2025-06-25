@@ -15,25 +15,41 @@
       href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700,800,900&amp;display=swap"
     />
 
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
     <!-- Design System GOV.BR CSS-->
     <link rel="stylesheet" href="./bibliotecas/govbr-ds/core-lite.css" />
 
     <!--- Design próprio CSS -->
     <!-- <link rel="stylesheet" href="./css/design.css" /> -->
     <link rel="stylesheet" href="./css/style.css" />
-
-    <!--- Ícones Font Awesome - Versão 6.5.1 -->
-    <link rel="stylesheet" href="./icones/css/fontawesome.css" />
-    <link rel="stylesheet" href="./icones/css/brands.css" />
-    <link rel="stylesheet" href="./icones/css/solid.css" />
   </head>
   <body>
     <br-cabecalho></br-cabecalho>
 
-    <main class="video-container">
-      <br-video></br-video>
+    <main>
+      <div class="curta-container">
+        <br-video></br-video>
+      </div>
+
+      <!-- Botões laterais só no desktop -->
+      <div class="nav-button prev-button">
+        <i class="fas fa-chevron-left"></i>
+      </div>
+      <div class="nav-button next-button">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+
+      <!-- Toast de feedback -->
+      <div id="toast">Link copiado!</div>
     </main>
 
     <br-rodape></br-rodape>
   </body>
+  <script src="./js/script.js"></script>
 </html>

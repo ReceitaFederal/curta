@@ -1,207 +1,222 @@
-import { ComponenteBase } from "../../bibliotecas/ultima/componente_base.js";
-
-export class CurtaVideo extends ComponenteBase {
+class BrVideo extends HTMLElement {
   constructor() {
-    super({ templateURL: "videos.html", shadowDOM: true }, import.meta.url);
-  }
-
-  aoConectar() {
-    // Elementos do DOM
-    this.videoElement = this.shadowRoot.getElementById("video");
-    this.likeCount = this.shadowRoot.getElementById("like-count");
-    this.playPauseBtn = this.shadowRoot.getElementById("btn-play-pause");
-    this.likeBtn = this.shadowRoot.getElementById("btn-like");
-
-    // Lista de vídeos
+    super();
+    this.attachShadow({ mode: "open" });
+    this.currentIndex = 0;
     this.videos = [
-      {
-        src: "./videosteste/video1.mp4",
-        inicio: 5,
-        fim: 15,
-        likes: 0,
-      },
-      {
-        src: "./video2.mp4",
-        inicio: 30,
-        fim: 35,
-        likes: 0,
-      },
-      {
-        src: "videos/video3.mp4",
-        inicio: 60,
-        fim: 70,
-        likes: 0,
-      },
+      { src: "./teste/video1.mp4" },
+      { src: "./teste/video2.mp4" },
+      { src: "/home/anaclara/Downloads/videoplayback.mp4" },
     ];
-
-    this.atual = 0;
-    this.isPlaying = false;
-    this.touchStartY = 0;
-    this.isHolding = false;
-    this.lastTapTime = 0;
-
-    // Configurações iniciais
-    this.setupEventListeners();
-    this.carregarVideo(this.atual);
-    this.precarregarProximo();
-
-    // Observer para manter proporção 9:16
-    this.observer = new ResizeObserver(() => {
-      const width = this.shadowRoot.host.clientWidth;
-      this.shadowRoot.host.style.height = `${(width * 16) / 9}px`;
-    });
-    this.observer.observe(this.shadowRoot.host);
   }
 
-  aoDesconectar() {
-    this.observer.disconnect();
+  connectedCallback() {
+    this.render();
+    this.setupEvents();
   }
 
-  setupEventListeners() {
-    // Controles
-    this.shadowRoot.getElementById("btn-proximo").onclick = () =>
-      this.proximo();
-    this.playPauseBtn.onclick = () => this.togglePlayPause();
-    this.likeBtn.onclick = () => this.curtir();
-
-    // Gestos de Toque
-    this.videoElement.addEventListener("touchstart", (e) =>
-      this.handleTouchStart(e)
-    );
-    this.videoElement.addEventListener("touchend", (e) =>
-      this.handleTouchEnd(e)
-    );
-    this.videoElement.addEventListener("touchmove", (e) => e.preventDefault());
-
-    // Long Press para pausar
-    this.videoElement.addEventListener("touchstart", () => {
-      this.isHolding = true;
-      setTimeout(() => {
-        if (this.isHolding && this.isPlaying) {
-          this.pause();
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          width: 100%;
+          max-width: 400px;
+          aspect-ratio: 9/13;
+          background: black;
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
         }
-      }, 500);
-    });
 
-    this.videoElement.addEventListener("touchend", () => {
-      this.isHolding = false;
-    });
+        video {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          display: block;
+          background: black;
+        }
 
-    // Eventos de vídeo
-    this.videoElement.addEventListener("play", () => {
-      this.isPlaying = true;
-      this.updatePlayPauseIcon();
-    });
+        .controles {
+          position: absolute;
+          right: 10px;
+          bottom: 50px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          z-index: 10;
+        }
 
-    this.videoElement.addEventListener("pause", () => {
-      this.isPlaying = false;
-      this.updatePlayPauseIcon();
-    });
+        .controles button {
+          background-color: rgba(0, 0, 0, 0.5);
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          color: white;
+          cursor: pointer;
+          font-size: 16px;
+        }
+
+        .volume-control {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .volume-control input[type="range"] {
+          width: 0;
+          opacity: 0;
+          transition: all 0.3s;
+        }
+
+        .volume-control:hover input[type="range"] {
+          width: 80px;
+          opacity: 1;
+        }
+
+        .gesture-area {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          display: flex;
+          z-index: 5;
+        }
+
+        .gesture-area div {
+          flex: 1;
+        }
+
+        .progress-bar {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          height: 6px;
+          width: 100%;
+          background-color: rgba(255, 255, 255, 0.2);
+          cursor: pointer;
+          z-index: 9;
+        }
+
+        .progress-bar-fill {
+          height: 100%;
+          background-color: #007bff;
+          width: 0%;
+        }
+
+        .gesture-hint {
+          position: absolute;
+          top: 8px;
+          left: 12px;
+          color: white;
+          font-size: 0.75rem;
+          z-index: 10;
+        }
+      </style>
+
+      <video autoplay muted playsinline></video>
+
+      <div class="progress-bar">
+        <div class="progress-bar-fill"></div>
+      </div>
+
+      <div class="controles">
+        <button id="btn-play" title="Play/Pause"><i class="fas fa-play"></i></button>
+        <button id="btn-copy" title="Copiar link"><i class="fas fa-link"></i></button>
+        <div class="volume-control">
+          <button id="volume-btn" title="Volume"><i class="fas fa-volume-up"></i></button>
+          <input type="range" id="volume-range" min="0" max="1" step="0.1" />
+        </div>
+      </div>
+
+      <div class="gesture-area">
+        <div id="area-esquerda"></div>
+        <div id="area-meio"></div>
+        <div id="area-direita"></div>
+      </div>
+    `;
+    this.loadVideo();
   }
 
-  handleTouchStart(e) {
-    this.touchStartY = e.touches[0].clientY;
+  loadVideo() {
+    const video = this.shadowRoot.querySelector("video");
+    video.src = this.videos[this.currentIndex].src;
+    video.currentTime = 0;
+    video.play();
   }
 
-  handleTouchEnd(e) {
-    const currentTime = Date.now();
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchEndY - this.touchStartY;
+  setupEvents() {
+    const video = this.shadowRoot.querySelector("video");
+    const btnPlay = this.shadowRoot.getElementById("btn-play");
+    const btnCopy = this.shadowRoot.getElementById("btn-copy");
+    const btnVolume = this.shadowRoot.getElementById("volume-btn");
+    const volumeRange = this.shadowRoot.getElementById("volume-range");
+    const progressBar = this.shadowRoot.querySelector(".progress-bar");
+    const progressFill = this.shadowRoot.querySelector(".progress-bar-fill");
 
-    // Double Tap para like (dentro de 300ms)
-    if (currentTime - this.lastTapTime < 300) {
-      this.curtir();
-    }
-    this.lastTapTime = currentTime;
+    const esquerda = this.shadowRoot.getElementById("area-esquerda");
+    const meio = this.shadowRoot.getElementById("area-meio");
+    const direita = this.shadowRoot.getElementById("area-direita");
 
-    // Swipe para cima/baixo
-    if (deltaY < -50) {
-      // Swipe para cima
-      this.proximo();
-    } else if (deltaY > 50) {
-      // Swipe para baixo
-      this.anterior();
-    } else if (!this.isHolding) {
-      // Tap simples
-      this.togglePlayPause();
-    }
-  }
-
-  carregarVideo(index) {
-    const video = this.videos[index];
-    if (!video) return;
-
-    this.videoElement.src = `${video.src}#t=${video.inicio},${video.fim}`;
-    this.videoElement.currentTime = video.inicio;
-    this.likeCount.textContent = video.likes;
-
-    this.videoElement.onloadedmetadata = () => {
-      this.videoElement.currentTime = video.inicio;
-    };
-
-    this.videoElement.ontimeupdate = () => {
-      if (this.videoElement.currentTime >= video.fim) {
-        this.videoElement.currentTime = video.inicio;
-        if (!this.isHolding) this.videoElement.play();
+    // Play/pause
+    btnPlay.addEventListener("click", () => {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
       }
-    };
+    });
 
-    this.videoElement
-      .play()
-      .catch((e) => console.log("Autoplay bloqueado:", e));
-  }
+    // Copiar link
+    btnCopy.addEventListener("click", () => {
+      navigator.clipboard.writeText(video.src);
+      const toast = document.getElementById("toast");
+      if (toast) {
+        toast.classList.add("active");
+        setTimeout(() => toast.classList.remove("active"), 2000);
+      }
+    });
 
-  precarregarProximo() {
-    const nextIndex = (this.atual + 1) % this.videos.length;
-    const nextVideo = new Audio();
-    nextVideo.src = this.videos[nextIndex].src;
-    nextVideo.load();
-  }
+    // Volume
+    volumeRange.addEventListener("input", () => {
+      video.volume = volumeRange.value;
+    });
 
-  togglePlayPause() {
-    if (this.isPlaying) {
-      this.pause();
-    } else {
-      this.play();
-    }
-  }
+    // Barra de progresso
+    video.addEventListener("timeupdate", () => {
+      const percent = (video.currentTime / video.duration) * 100;
+      progressFill.style.width = `${percent}%`;
+    });
 
-  updatePlayPauseIcon() {
-    const icon = this.playPauseBtn.querySelector("i");
-    icon.className = this.isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
-  }
+    progressBar.addEventListener("click", (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percent = clickX / rect.width;
+      video.currentTime = percent * video.duration;
+    });
 
-  curtir() {
-    this.videos[this.atual].likes++;
-    this.likeCount.textContent = this.videos[this.atual].likes;
+    // Toques por área
+    esquerda.addEventListener("click", () => {
+      this.currentIndex =
+        (this.currentIndex - 1 + this.videos.length) % this.videos.length;
+      this.loadVideo();
+    });
 
-    // Animação de like
-    const icon = this.likeBtn.querySelector("i");
-    icon.className = "fa-solid fa-heart";
-    icon.style.color = "#ff0000";
-    setTimeout(() => {
-      icon.style.color = "";
-    }, 1000);
-  }
+    direita.addEventListener("click", () => {
+      this.currentIndex = (this.currentIndex + 1) % this.videos.length;
+      this.loadVideo();
+    });
 
-  proximo() {
-    this.atual = (this.atual + 1) % this.videos.length;
-    this.carregarVideo(this.atual);
-    this.precarregarProximo();
-  }
-
-  anterior() {
-    this.atual = (this.atual - 1 + this.videos.length) % this.videos.length;
-    this.carregarVideo(this.atual);
-  }
-
-  play() {
-    this.videoElement.play();
-  }
-
-  pause() {
-    this.videoElement.pause();
+    meio.addEventListener("click", () => {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
   }
 }
 
-customElements.define("br-video", CurtaVideo);
+customElements.define("br-video", BrVideo);
