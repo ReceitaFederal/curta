@@ -1,4 +1,4 @@
-class BrVideo extends HTMLElement {
+class Curta extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -6,7 +6,8 @@ class BrVideo extends HTMLElement {
     this.videos = [
       { src: "./teste/video1.mp4" },
       { src: "./teste/video2.mp4" },
-      { src: "/home/anaclara/Downloads/videoplayback.mp4" },
+      { src: "./teste/videoplayback.mp4" },
+      { src: "./teste/v09044g40000cu9qmofog65srs5m8rcg.mp4" },
     ];
   }
 
@@ -55,7 +56,7 @@ class BrVideo extends HTMLElement {
           height: 40px;
           color: white;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 18px;
         }
 
         .volume-control {
@@ -116,18 +117,18 @@ class BrVideo extends HTMLElement {
         }
       </style>
 
-      <video autoplay muted playsinline></video>
+      <video playsinline></video>
 
       <div class="progress-bar">
         <div class="progress-bar-fill"></div>
       </div>
 
       <div class="controles">
-        <button id="btn-play" title="Play/Pause"><i class="fas fa-play"></i></button>
-        <button id="btn-copy" title="Copiar link"><i class="fas fa-link"></i></button>
+        <button id="btn-play" title="Play/Pause">▶️</button>
+        <button id="btn-copy" title="Copiar link">🔗</button>
         <div class="volume-control">
-          <button id="volume-btn" title="Volume"><i class="fas fa-volume-up"></i></button>
-          <input type="range" id="volume-range" min="0" max="1" step="0.1" />
+          <button id="volume-btn" title="Volume">🔊</button>
+          <input type="range" id="volume-range" min="0" max="1" step="0.1" value="1" />
         </div>
       </div>
 
@@ -144,6 +145,8 @@ class BrVideo extends HTMLElement {
     const video = this.shadowRoot.querySelector("video");
     video.src = this.videos[this.currentIndex].src;
     video.currentTime = 0;
+    video.muted = false;
+    video.volume = 1;
     video.play();
   }
 
@@ -160,12 +163,14 @@ class BrVideo extends HTMLElement {
     const meio = this.shadowRoot.getElementById("area-meio");
     const direita = this.shadowRoot.getElementById("area-direita");
 
-    // Play/pause
+    // Play/pause com alternância de ícone
     btnPlay.addEventListener("click", () => {
       if (video.paused) {
         video.play();
+        btnPlay.textContent = "⏸️";
       } else {
         video.pause();
+        btnPlay.textContent = "▶️";
       }
     });
 
@@ -179,9 +184,23 @@ class BrVideo extends HTMLElement {
       }
     });
 
-    // Volume
+    // Volume range
     volumeRange.addEventListener("input", () => {
       video.volume = volumeRange.value;
+      if (video.volume == 0) {
+        video.muted = true;
+        btnVolume.textContent = "🔇";
+      } else {
+        video.muted = false;
+        btnVolume.textContent = "🔊";
+      }
+    });
+
+    // Botão de mute/unmute
+    btnVolume.addEventListener("click", () => {
+      video.muted = !video.muted;
+      btnVolume.textContent = video.muted ? "🔇" : "🔊";
+      volumeRange.value = video.muted ? 0 : video.volume;
     });
 
     // Barra de progresso
@@ -197,7 +216,7 @@ class BrVideo extends HTMLElement {
       video.currentTime = percent * video.duration;
     });
 
-    // Toques por área
+    // Navegação por áreas
     esquerda.addEventListener("click", () => {
       this.currentIndex =
         (this.currentIndex - 1 + this.videos.length) % this.videos.length;
@@ -212,11 +231,13 @@ class BrVideo extends HTMLElement {
     meio.addEventListener("click", () => {
       if (video.paused) {
         video.play();
+        btnPlay.textContent = "⏸️";
       } else {
         video.pause();
+        btnPlay.textContent = "▶️";
       }
     });
   }
 }
 
-customElements.define("br-video", BrVideo);
+customElements.define("br-video", Curta);
